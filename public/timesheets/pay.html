@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Pay &amp; Rates — Timesheet Companion</title>
+<link href="manifest.webmanifest" rel="manifest"/>
+<meta content="#111111" name="theme-color"/>
+<style>
+  html,body{ margin:0; padding:0; background:#0b0b0c; color:#111; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+  .app{ max-width: 980px; margin: 16px auto; padding: 12px; }
+  .card{ background:#fff; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,.15); overflow:hidden; margin-bottom:14px; }
+  .header{ padding: 14px 18px; border-bottom: 1px solid #e6e6e6; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .title{ font-weight: 700; letter-spacing:.2px; }
+  .controls{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  button, .btn{ appearance:none; border:1px solid #dadada; background:#f6f7f8; padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:600; font-size:14px; text-decoration:none; color:#111; display:inline-flex; align-items:center; gap:6px; }
+  button:hover{ background:#eef0f2; }
+  .primary{ background:#111; color:#fff; border-color:#111; }
+  .primary:hover{ filter:brightness(1.1); }
+  .danger{ background:#fff; color:#b00020; border-color:#e5b4b4; }
+  .content{ padding: 16px; }
+  h3{ margin: 0 0 10px; }
+  .muted{ color:#555; font-size:12px; }
+  label{ font-weight:600; font-size: 14px; display:block; margin-bottom:4px; }
+  input[type="text"], input[type="number"], input[type="file"], input[type="time"], textarea{
+    width:100%; padding:10px 12px; border:1px solid #d8d8d8; border-radius:10px; font-size:15px; box-sizing:border-box; background:#fff; color:#111;
+  }
+  .row{ margin-bottom:10px; }
+  .grid-2{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+  .grid-3{ display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; }
+  .grid-4{ display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; }
+  @media (max-width: 640px){ .grid-2,.grid-3,.grid-4{ grid-template-columns: 1fr; } }
+  .rates-box{ background:#f7f8fa; border:1px solid #e6e8ec; border-radius:10px; padding:12px; }
+  .kbd{ font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; background:#f0f1f3; padding:2px 6px; border-radius:6px; }
+  table.calc{ width:100%; border-collapse: collapse; margin-top:6px; }
+  .calc th, .calc td{ border-bottom:1px solid #eee; padding:8px 6px; text-align:left; font-size:14px; }
+  .calc th{ background:#fafafa; font-weight:700; }
+  .calc td.num, .calc th.num{ text-align:right; font-variant-numeric: tabular-nums; }
+  .totals{ display:flex; justify-content:space-between; align-items:baseline; margin-top:10px; padding:12px; background:#111; color:#fff; border-radius:10px; }
+  .totals .amt{ font-size:24px; font-weight:800; font-variant-numeric: tabular-nums; }
+  details.raw{ margin-top:10px; }
+  details.raw pre{ background:#0b0b0c; color:#e6e6e6; padding:10px; border-radius:8px; max-height:260px; overflow:auto; font-size:12px; }
+  .hits{ display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .hit{ background:#eef4ff; border:1px solid #cfe0ff; color:#1a4fbf; padding:4px 8px; border-radius:999px; font-size:12px; cursor:pointer; }
+  .status{ margin-top:8px; font-size:13px; }
+  .ok{ color:#0a7a2f; } .warn{ color:#a15c00; } .err{ color:#b00020; }
+  .drop{ border:2px dashed #cfd4dc; border-radius:12px; padding:18px; text-align:center; color:#555; background:#fafbfc; }
+  .drop.dragover{ background:#eef4ff; border-color:#7ea6ff; color:#1a4fbf; }
+  .pill{ display:inline-flex; gap:6px; padding:4px; background:#f3f4f6; border-radius:999px; }
+  .pill button{ border-radius:999px; padding:6px 10px; background:transparent; border:none; font-size:13px; }
+  .pill button.active{ background:#111; color:#fff; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <div class="card">
+    <div class="header">
+      <div class="title">💷 Pay &amp; Rates</div>
+      <div class="controls">
+        <a class="btn" href="index.html">← Back to Timesheet</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1) Upload payslip -->
+  <div class="card">
+    <div class="content">
+      <h3>1) Upload a payslip PDF</h3>
+      <p class="muted">Your payslip is read on-device (nothing is uploaded). Rates are pulled out automatically and saved to this browser for next time.</p>
+      <div class="drop" id="drop">
+        <input type="file" id="pdfFile" accept="application/pdf" style="display:none"/>
+        <button class="btn primary" id="pickBtn" type="button">Choose PDF payslip</button>
+        <div class="muted" style="margin-top:6px;">…or drag &amp; drop a PDF here</div>
+      </div>
+      <div class="status" id="parseStatus"></div>
+      <div id="hits" class="hits"></div>
+      <details class="raw" id="rawWrap" style="display:none">
+        <summary>Show extracted text (for debugging)</summary>
+        <pre id="rawText"></pre>
+      </details>
+    </div>
+  </div>
+
+  <!-- 2) Confirm rates -->
+  <div class="card">
+    <div class="content">
+      <h3>2) Confirm your rates</h3>
+      <p class="muted">Edit anything the scan got wrong. These are saved and reused for every wage calculation.</p>
+      <div class="rates-box">
+        <div class="grid-3">
+          <div class="row">
+            <label>Basic hourly rate (£)</label>
+            <input type="number" step="0.01" min="0" id="rateBasic" placeholder="e.g. 14.50"/>
+          </div>
+          <div class="row">
+            <label>Overtime rate (£/hr)</label>
+            <input type="number" step="0.01" min="0" id="rateOT" placeholder="e.g. 21.75"/>
+          </div>
+          <div class="row">
+            <label>Night shift rate (£/hr)</label>
+            <input type="number" step="0.01" min="0" id="rateNight" placeholder="optional"/>
+          </div>
+        </div>
+        <div class="grid-3">
+          <div class="row">
+            <label>Standard hours / day</label>
+            <input type="number" step="0.25" min="0" id="stdHours" placeholder="e.g. 8"/>
+          </div>
+          <div class="row">
+            <label>Unpaid break / day (hrs)</label>
+            <input type="number" step="0.25" min="0" id="breakHrs" placeholder="e.g. 0.5"/>
+          </div>
+          <div class="row">
+            <label>OT starts after (hrs/day)</label>
+            <input type="number" step="0.25" min="0" id="otAfter" placeholder="e.g. 8"/>
+          </div>
+        </div>
+        <div class="controls" style="margin-top:6px;">
+          <button class="btn primary" id="saveRates">Save rates</button>
+          <button class="btn danger" id="clearRates">Clear saved rates</button>
+          <span class="status" id="saveStatus"></span>
+        </div>
+        <div class="muted" style="margin-top:6px;">
+          Saved locally as <span class="kbd">wj_rates</span>. Re-upload a new payslip whenever your rate changes.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3) Wage calculator -->
+  <div class="card">
+    <div class="content">
+      <h3>3) This week's wage</h3>
+      <div class="pill" role="group" aria-label="Source">
+        <button type="button" id="srcTs" class="active">Use my timesheet</button>
+        <button type="button" id="srcManual">Enter manually</button>
+      </div>
+      <p class="muted" style="margin-top:8px;">
+        <span id="srcHint">Reads the days &amp; times you entered on the timesheet page.</span>
+      </p>
+
+      <table class="calc" id="calcTable">
+        <thead>
+          <tr>
+            <th>Day</th><th>Date</th><th>Shift</th><th>Start</th><th>Finish</th>
+            <th class="num">Hours</th><th class="num">Basic</th><th class="num">OT</th><th class="num">Pay</th>
+          </tr>
+        </thead>
+        <tbody id="calcBody"></tbody>
+      </table>
+
+      <div class="totals">
+        <div>
+          <div style="font-weight:700;">Estimated gross this week</div>
+          <div class="muted" id="totalsBreak" style="color:#c7cbd3;"></div>
+        </div>
+        <div class="amt" id="totalAmt">£0.00</div>
+      </div>
+      <div class="muted" style="margin-top:8px;">Gross only — before tax, NI &amp; pension. Adjust rates above if the number looks off.</div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  if (window['pdfjsLib']) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+
+  // ---- Storage ----
+  const RATES_KEY = 'wj_rates';
+  const TS_KEY = 'ts_state';
+
+  function loadRates(){
+    try { return JSON.parse(localStorage.getItem(RATES_KEY)) || {}; } catch(e){ return {}; }
+  }
+  function saveRates(r){ localStorage.setItem(RATES_KEY, JSON.stringify(r)); }
+
+  function fillForm(r){
+    document.getElementById('rateBasic').value = r.basic ?? '';
+    document.getElementById('rateOT').value    = r.ot ?? '';
+    document.getElementById('rateNight').value = r.night ?? '';
+    document.getElementById('stdHours').value  = r.stdHours ?? 8;
+    document.getElementById('breakHrs').value  = r.breakHrs ?? 0.5;
+    document.getElementById('otAfter').value   = r.otAfter ?? 8;
+  }
+  function readForm(){
+    return {
+      basic: parseFloat(document.getElementById('rateBasic').value) || 0,
+      ot:    parseFloat(document.getElementById('rateOT').value)    || 0,
+      night: parseFloat(document.getElementById('rateNight').value) || 0,
+      stdHours: parseFloat(document.getElementById('stdHours').value) || 8,
+      breakHrs: parseFloat(document.getElementById('breakHrs').value) || 0,
+      otAfter:  parseFloat(document.getElementById('otAfter').value)  || 8,
+      savedAt: new Date().toISOString(),
+    };
+  }
+
+  fillForm(loadRates());
+
+  document.getElementById('saveRates').addEventListener('click', ()=>{
+    const r = readForm(); saveRates(r);
+    const s = document.getElementById('saveStatus');
+    s.textContent = 'Saved ✓'; s.className = 'status ok';
+    setTimeout(()=> s.textContent = '', 2000);
+    recompute();
+  });
+  document.getElementById('clearRates').addEventListener('click', ()=>{
+    if(!confirm('Clear saved rates?')) return;
+    localStorage.removeItem(RATES_KEY);
+    fillForm({});
+    recompute();
+  });
+  ['rateBasic','rateOT','rateNight','stdHours','breakHrs','otAfter'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', recompute);
+  });
+
+  // ---- PDF handling ----
+  const drop = document.getElementById('drop');
+  const fileInput = document.getElementById('pdfFile');
+  document.getElementById('pickBtn').addEventListener('click', ()=> fileInput.click());
+  fileInput.addEventListener('change', e=>{ if(e.target.files[0]) handlePdf(e.target.files[0]); });
+  ;['dragenter','dragover'].forEach(ev=> drop.addEventListener(ev, e=>{ e.preventDefault(); drop.classList.add('dragover'); }));
+  ;['dragleave','drop'].forEach(ev=> drop.addEventListener(ev, e=>{ e.preventDefault(); drop.classList.remove('dragover'); }));
+  drop.addEventListener('drop', e=>{
+    const f = e.dataTransfer?.files?.[0];
+    if(f && f.type === 'application/pdf') handlePdf(f);
+  });
+
+  async function handlePdf(file){
+    const status = document.getElementById('parseStatus');
+    status.textContent = 'Reading PDF…'; status.className = 'status';
+    try {
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+      let text = '';
+      for(let p=1; p<=pdf.numPages; p++){
+        const page = await pdf.getPage(p);
+        const tc = await page.getTextContent();
+        text += tc.items.map(it => it.str).join(' ') + '\n';
+      }
+      document.getElementById('rawWrap').style.display = 'block';
+      document.getElementById('rawText').textContent = text;
+
+      const found = extractRates(text);
+      renderHits(found);
+
+      // Auto-fill best guesses if fields empty
+      const current = readForm();
+      if(!current.basic && found.basic) document.getElementById('rateBasic').value = found.basic.toFixed(2);
+      if(!current.ot    && found.ot)    document.getElementById('rateOT').value    = found.ot.toFixed(2);
+      if(!current.night && found.night) document.getElementById('rateNight').value = found.night.toFixed(2);
+
+      // Save immediately so timesheet page can use it too
+      saveRates(readForm());
+      recompute();
+
+      status.innerHTML = found.basic
+        ? `Found a basic rate of <b>£${found.basic.toFixed(2)}/hr</b>. Check the fields below and hit Save.`
+        : `Couldn't confidently detect a rate — tap any of the candidates below, or type it in manually.`;
+      status.className = 'status ' + (found.basic ? 'ok' : 'warn');
+    } catch(err){
+      console.error(err);
+      status.textContent = 'Sorry — couldn\'t read that PDF. Try a different file.';
+      status.className = 'status err';
+    }
+  }
+
+  // Try common payslip wording. Returns { basic, ot, night, candidates: [{label, value}] }
+  function extractRates(raw){
+    const text = raw.replace(/\s+/g, ' ');
+    const money = '(\\d{1,3}(?:,\\d{3})*(?:\\.\\d{1,4})?)';
+    const near = (kw) => new RegExp(kw + '[^\\d£]{0,40}£?\\s*' + money, 'i');
+    const patterns = [
+      { key: 'basic', label: 'Basic',    re: near('basic(?:\\s*(?:pay|rate|hour))?') },
+      { key: 'basic', label: 'Standard', re: near('standard\\s*(?:rate|hour)') },
+      { key: 'basic', label: 'Hourly',   re: near('hourly\\s*rate') },
+      { key: 'ot',    label: 'Overtime', re: near('overtime') },
+      { key: 'ot',    label: 'O/T',      re: near('o\\s*/\\s*t') },
+      { key: 'ot',    label: '1.5x',     re: near('1\\.5|time\\s*and\\s*a\\s*half') },
+      { key: 'night', label: 'Night',    re: near('night(?:\\s*shift|\\s*rate)?') },
+    ];
+    const out = { basic:null, ot:null, night:null, candidates:[] };
+    for(const p of patterns){
+      const m = text.match(p.re);
+      if(m){
+        const v = parseFloat(m[1].replace(/,/g,''));
+        if(v > 0 && v < 200){ // sanity: hourly rate range
+          if(!out[p.key]) out[p.key] = v;
+          out.candidates.push({ label: `${p.label}: £${v.toFixed(2)}`, value: v, key: p.key });
+        }
+      }
+    }
+    // Fallback: pick up any "£X.XX per hour"
+    const perHr = [...text.matchAll(/£?\s*(\d{1,3}(?:\.\d{1,4}))\s*(?:per\s*hour|\/hr|p\/h|ph)/gi)];
+    for(const m of perHr){
+      const v = parseFloat(m[1]);
+      if(v > 0 && v < 200){
+        out.candidates.push({ label:`£${v.toFixed(2)}/hr`, value:v, key:'basic' });
+        if(!out.basic) out.basic = v;
+      }
+    }
+    return out;
+  }
+
+  function renderHits(found){
+    const el = document.getElementById('hits');
+    el.innerHTML = '';
+    const uniq = new Map();
+    for(const c of found.candidates){
+      const k = c.key + ':' + c.value.toFixed(2);
+      if(!uniq.has(k)) uniq.set(k, c);
+    }
+    for(const c of uniq.values()){
+      const b = document.createElement('button');
+      b.className = 'hit'; b.type = 'button';
+      b.textContent = c.label + ' →';
+      b.title = 'Tap to use as ' + (c.key === 'ot' ? 'Overtime' : c.key === 'night' ? 'Night' : 'Basic');
+      b.onclick = ()=>{
+        const id = c.key === 'ot' ? 'rateOT' : c.key === 'night' ? 'rateNight' : 'rateBasic';
+        document.getElementById(id).value = c.value.toFixed(2);
+        saveRates(readForm());
+        recompute();
+      };
+      el.appendChild(b);
+    }
+  }
+
+  // ---- Calculator ----
+  let source = 'ts'; // 'ts' | 'manual'
+  const srcTsBtn = document.getElementById('srcTs');
+  const srcManBtn = document.getElementById('srcManual');
+  srcTsBtn.onclick = ()=>{ source='ts'; srcTsBtn.classList.add('active'); srcManBtn.classList.remove('active'); document.getElementById('srcHint').textContent = 'Reads the days & times you entered on the timesheet page.'; recompute(); };
+  srcManBtn.onclick = ()=>{ source='manual'; srcManBtn.classList.add('active'); srcTsBtn.classList.remove('active'); document.getElementById('srcHint').textContent = 'Type your start & finish for each day.'; recompute(); };
+
+  const DAY_NAMES = ["SAT","SUN","MON","TUES","WEDS","THURS","FRI"];
+
+  function loadTsState(){
+    try { return JSON.parse(localStorage.getItem(TS_KEY)) || null; } catch(e){ return null; }
+  }
+  function pad(n){ return n<10?'0'+n:''+n; }
+  function ddmmyy(d){ return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${(''+d.getFullYear()).slice(-2)}`; }
+  function toMin(t){ if(!t) return null; const [h,m] = t.split(':').map(Number); return h*60+(m||0); }
+  function hoursBetween(start, finish){
+    const a = toMin(start), b = toMin(finish);
+    if(a==null || b==null) return 0;
+    let diff = b - a; if(diff < 0) diff += 24*60; // overnight
+    return diff / 60;
+  }
+
+  function buildRowsFromTs(){
+    const s = loadTsState();
+    if(!s || !s.startDate) return [];
+    const start = new Date(s.startDate);
+    const rows = [];
+    for(let i=0;i<7;i++){
+      const d = new Date(start.getFullYear(), start.getMonth(), start.getDate()+i);
+      const e = (s.entries && s.entries[i]) || {};
+      rows.push({
+        day: DAY_NAMES[i], date: ddmmyy(d),
+        shift: e.worked ? (e.shift||'') : '',
+        start: e.worked ? (e.start||'') : '',
+        finish: e.worked ? (e.finish||'') : '',
+        worked: !!e.worked,
+      });
+    }
+    return rows;
+  }
+  function buildRowsManual(){
+    // Reuse manual entries stored in localStorage
+    let saved = [];
+    try { saved = JSON.parse(localStorage.getItem('wj_manualWeek')||'[]'); } catch(e){}
+    const rows = [];
+    for(let i=0;i<7;i++){
+      const s = saved[i] || {};
+      rows.push({ day: DAY_NAMES[i], date:'', shift: s.shift||'', start:s.start||'', finish:s.finish||'', worked: !!(s.start && s.finish) });
+    }
+    return rows;
+  }
+
+  function computePay(rows, rates){
+    let totalHours=0, basicHours=0, otHours=0, nightHours=0, pay=0;
+    const breakH = rates.breakHrs || 0;
+    for(const r of rows){
+      if(!r.worked) { r.hrs=0; r.basicH=0; r.otH=0; r.pay=0; continue; }
+      const raw = hoursBetween(r.start, r.finish);
+      const hrs = Math.max(0, raw - breakH);
+      let bh = hrs, oth = 0;
+      if(rates.otAfter > 0 && hrs > rates.otAfter){
+        bh = rates.otAfter; oth = hrs - rates.otAfter;
+      }
+      const basicRate = r.shift === 'Night' && rates.night > 0 ? rates.night : rates.basic;
+      const otRate = rates.ot > 0 ? rates.ot : basicRate * 1.5;
+      const p = bh * basicRate + oth * otRate;
+      r.hrs = hrs; r.basicH = bh; r.otH = oth; r.pay = p;
+      totalHours += hrs; basicHours += bh; otHours += oth; pay += p;
+      if(r.shift==='Night') nightHours += hrs;
+    }
+    return { totalHours, basicHours, otHours, nightHours, pay };
+  }
+
+  function inputCell(val, ph, type='time', onChange){
+    const el = document.createElement('input');
+    el.type = type; el.value = val || ''; el.placeholder = ph || '';
+    el.style.width = '100%'; el.style.padding='6px 8px'; el.style.border='1px solid #d8d8d8'; el.style.borderRadius='8px';
+    el.addEventListener('input', onChange);
+    return el;
+  }
+  function shiftToggle(current, onChange){
+    const wrap = document.createElement('div');
+    wrap.className='pill';
+    for(const opt of ['','Day','Night']){
+      const b=document.createElement('button'); b.type='button';
+      b.textContent = opt || 'Off';
+      if((current||'') === opt) b.classList.add('active');
+      b.onclick = ()=> onChange(opt);
+      wrap.appendChild(b);
+    }
+    return wrap;
+  }
+
+  function saveManual(rows){
+    localStorage.setItem('wj_manualWeek', JSON.stringify(rows.map(r=>({shift:r.shift,start:r.start,finish:r.finish}))));
+  }
+
+  function recompute(){
+    const rates = readForm();
+    const rows = source === 'ts' ? buildRowsFromTs() : buildRowsManual();
+    const body = document.getElementById('calcBody');
+    body.innerHTML = '';
+
+    if(source === 'ts' && !loadTsState()){
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td colspan="9" class="muted" style="padding:14px;">No timesheet data yet — fill it in on the <a href="index.html">timesheet page</a>, or switch to “Enter manually”.</td>`;
+      body.appendChild(tr);
+      document.getElementById('totalAmt').textContent = '£0.00';
+      document.getElementById('totalsBreak').textContent = '';
+      return;
+    }
+
+    const totals = computePay(rows, rates);
+
+    rows.forEach((r, i) => {
+      const tr = document.createElement('tr');
+      const money = v => v ? '£' + v.toFixed(2) : '';
+      const hrs = v => v ? v.toFixed(2) : '';
+      if(source === 'ts'){
+        tr.innerHTML = `
+          <td>${r.day}</td><td>${r.date}</td><td>${r.shift}</td>
+          <td>${r.start}</td><td>${r.finish}</td>
+          <td class="num">${hrs(r.hrs)}</td>
+          <td class="num">${hrs(r.basicH)}</td>
+          <td class="num">${hrs(r.otH)}</td>
+          <td class="num"><b>${money(r.pay)}</b></td>`;
+      } else {
+        const tdDay=document.createElement('td'); tdDay.textContent=r.day;
+        const tdDate=document.createElement('td'); tdDate.textContent='';
+        const tdShift=document.createElement('td');
+        tdShift.appendChild(shiftToggle(r.shift, v=>{ r.shift=v; r.worked = !!(r.start && r.finish); saveManual(rows); recompute(); }));
+        const tdStart=document.createElement('td'); tdStart.appendChild(inputCell(r.start,'','time', e=>{ r.start=e.target.value; r.worked=!!(r.start&&r.finish); saveManual(rows); recompute(); }));
+        const tdFinish=document.createElement('td'); tdFinish.appendChild(inputCell(r.finish,'','time', e=>{ r.finish=e.target.value; r.worked=!!(r.start&&r.finish); saveManual(rows); recompute(); }));
+        const tdHrs=document.createElement('td'); tdHrs.className='num'; tdHrs.textContent=hrs(r.hrs);
+        const tdB=document.createElement('td'); tdB.className='num'; tdB.textContent=hrs(r.basicH);
+        const tdO=document.createElement('td'); tdO.className='num'; tdO.textContent=hrs(r.otH);
+        const tdP=document.createElement('td'); tdP.className='num'; tdP.innerHTML=`<b>${money(r.pay)}</b>`;
+        [tdDay,tdDate,tdShift,tdStart,tdFinish,tdHrs,tdB,tdO,tdP].forEach(x=>tr.appendChild(x));
+      }
+      body.appendChild(tr);
+    });
+
+    document.getElementById('totalAmt').textContent = '£' + totals.pay.toFixed(2);
+    document.getElementById('totalsBreak').textContent =
+      `${totals.totalHours.toFixed(2)} hrs total • ${totals.basicHours.toFixed(2)} basic • ${totals.otHours.toFixed(2)} OT` +
+      (totals.nightHours ? ` • ${totals.nightHours.toFixed(2)} night` : '');
+  }
+
+  recompute();
+
+  // If they flip back after editing the timesheet in another tab
+  window.addEventListener('storage', recompute);
+  window.addEventListener('focus', recompute);
+</script>
+</body>
+</html>
