@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Timesheet Filler (Weekly)</title>
+<style>
+  :root{
+    --page-width: 794px;   /* ~A4 @96dpi */
+    --page-height: 1123px;
+    --border:#000;
+  }
+  html, body{ margin:0; padding:0; background:#0b0b0c; color:#111; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+  .app{ max-width: 980px; margin: 16px auto; padding: 12px; }
+  .card{ background:#fff; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,.15); overflow: hidden; }
+  .header{ padding: 16px 18px; border-bottom: 1px solid #e6e6e6; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;}
+  .title{ font-weight: 700; letter-spacing:.2px; }
+  .controls{ display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+  button, .btn{ appearance:none; border:1px solid #dadada; background:#f6f7f8; padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:600; transition:.15s; font-size:14px; }
+  button:hover{ background:#eef0f2; }
+  .primary{ background:#111; color:#fff; border-color:#111; }
+  .primary:hover{ filter:brightness(1.1); }
+  .muted{ color:#555; font-size:12px; }
+  .content{ padding: 16px; }
+  .step{ display:none; } .step.active{ display:block; }
+  .row{ display:grid; gap:10px; grid-template-columns: 1fr; margin-bottom: 10px; }
+  label{ font-weight:600; font-size: 14px; }
+  input[type="text"], input[type="time"], input[type="date"], input[type="number"], select, textarea{ width:100%; padding:10px 12px; border:1px solid #d8d8d8; border-radius:10px; font-size:15px; }
+  textarea{ min-height: 80px; }
+  .pill{ display:inline-flex; gap:6px; padding:6px; background:#f3f4f6; border-radius:999px; }
+  .pill button{ border-radius:999px; padding:8px 12px; background:transparent; border:none; }
+  .pill button.active{ background:#111; color:#fff; }
+  .grid-2{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+  .grid-3{ display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; }
+  .footer-nav{ display:flex; justify-content:space-between; gap:10px; margin-top:12px; }
+
+  /* A4-like preview sheet */
+  .sheet-wrap{ display:flex; justify-content:center; }
+  .sheet{
+    width: min(var(--page-width), 100%);
+    min-height: var(--page-height);
+    background:#fff; color:#000;
+    padding: 28px 30px 24px;
+    border: 1px solid #ddd;
+    box-sizing: border-box;
+  }
+
+  /* Header with left logo + centered title */
+  .masthead{ display:grid; grid-template-columns: auto 1fr auto; align-items:center; margin-bottom: 8px; column-gap: 12px; }
+  .masthead .wj-logo img{ height: 54px; width:auto; display:block; }
+  .masthead .title-wrap{ text-align:center; }
+  .sheet h1{ font-family: Arial, Helvetica, sans-serif; font-weight: 700; letter-spacing: .5px; margin:0; font-size: 22pt; }
+  .masthead .spacer{ width:54px; height:1px; }
+
+  .topbar{ display:flex; justify-content:space-between; gap:14px; margin: 10px 0 12px; align-items:center;}
+  .topbar .pair{ display:flex; gap:10px; flex-wrap:wrap; font-size:11pt; }
+  .topbar .pair b{ margin-right:6px; }
+
+  table.timesheet{ width:100%; border-collapse: collapse; table-layout:fixed; border: 1px solid var(--border); }
+  .timesheet th, .timesheet td{ border:1px solid var(--border); padding: 5px 6px; vertical-align: middle; }
+  .timesheet th{ font-weight:700; text-align:center; font-size:10pt; font-family: Arial, Helvetica, sans-serif; }
+
+  /* Wider last column, slightly narrower Location */
+  .col-day{ width: 8.5%; } .col-date{ width: 9.5%; } .col-shift{ width: 13.5%; } .col-start{ width: 9.5%; } .col-finish{ width: 9.5%; } .col-ot{ width: 10%; } .col-loc{ width: 16%; } .col-job{ width: 10%; } .col-crew{ width: 5%; } .col-office{ width: 8%; }
+
+  .td-time, .td-loc{ font-family: Calibri, 'Carlito', Arial, Helvetica, sans-serif; font-size: 11pt; }
+  .td-date{ font-family: 'Times New Roman', Times, serif; font-size: 8pt; }
+  .td-center{ text-align:center; } .td-left{ text-align:left; } .td-small{ font-size:9pt; }
+
+  /* Gap rows between every day */
+  .gap-row td{ height: 36px; padding: 0; }
+
+  /* Bottom boxes (≈ three rows high) */
+  .bottom-row{ display:flex; gap:0; margin-top:10px; }
+  .box{ border:1px solid #000; height:132px; padding:8px; box-sizing:border-box; display:flex; flex-direction:column; justify-content:flex-start; }
+  .box-title{ font-weight:700; font-family: Arial, Helvetica, sans-serif; margin-bottom:6px; }
+  .rule{ border-bottom:1px dotted #555; height:1px; margin:4px 0 10px; }
+  .comments-text{ font-size:11pt; white-space:pre-wrap; }
+
+  /* Bottom box widths aligned to the columns above */
+  .box.comments{ width: 50.5%; }  /* Day+Date+Shift+Start+Finish */
+  .box.auth{ width: 26%; }        /* O/T + Location */
+  .box.oper{ width: 23%; }        /* Job No. + Crew + Office */
+
+  @media print{
+    @page { size: A4; margin: 0; }
+    html, body{ background:#fff; }
+    #preview{ display:block !important; }
+    .card, .header, .controls, .content:not(.print-area){ display:none !important; }
+    .sheet{ border:none; margin:0; }
+  }
+</style>
+<link href="manifest.webmanifest" rel="manifest"/><meta content="#111111" name="theme-color"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="default" name="apple-mobile-web-app-status-bar-style"/><link href="icons/wj-192.png" rel="apple-touch-icon"/></head>
+<body>
+<div class="app">
+<div class="card">
+<div class="header">
+<div class="title">📄 Timesheet Filler — Weekly (iPhone-friendly)</div>
+<div class="controls"><button class="btn" id="installBtn">Install App</button>
+<button class="btn" id="toPreview">Preview</button>
+<button class="btn primary" id="savePdfBtn">Save PDF</button>
+</div>
+</div>
+<div class="content">
+<div class="step active" id="step-1">
+<h3>1) Week setup</h3>
+<div class="row">
+<label for="startDate">What was <u>Saturday’s</u> date at the start of your week?</label>
+<div class="grid-2">
+<div>
+<small class="muted">Use the calendar:</small>
+<input id="startDate" inputmode="none" type="date"/>
+</div>
+<div>
+<small class="muted">…or type any format (2/08/2025, 2/8/25, 02-08-25, etc.):</small>
+<input id="startDateText" placeholder="e.g. 2/08/2025 or 2/8/25" type="text"/>
+</div>
+</div>
+</div>
+<div class="grid-2">
+<div class="row">
+<label>Operative’s Name</label>
+<input id="opName" type="text" value="ALFIE HALEY"/>
+</div>
+<div class="row">
+<label>Vehicle Registration No</label>
+<input id="vehReg" type="text" value="YH70 MXR"/>
+</div>
+</div>
+<div class="row">
+<label for="daysWorked">How many days did you work?</label>
+<input id="daysWorked" max="7" min="0" placeholder="0–7" step="1" type="number"/>
+</div>
+<div class="footer-nav">
+<div></div>
+<button class="btn primary" id="startWeek">Continue →</button>
+</div>
+</div>
+<div class="step" id="step-2">
+<h3>2) Daily entries</h3>
+<div id="dayForm"></div>
+<div class="footer-nav">
+<button class="btn" id="back1">← Back</button>
+<button class="btn primary" id="nextDay">Next</button>
+</div>
+</div>
+<div class="step" id="step-3">
+<h3>3) Comments (optional)</h3>
+<p class="muted">Optional: add extra info. Your “Days: X” will be added automatically.</p>
+<textarea id="commentsBox" placeholder="Type any extra comments here…"></textarea>
+<div class="footer-nav">
+<button class="btn" id="back2">← Back</button>
+<button class="btn primary" id="finish">Finish &amp; Preview</button>
+</div>
+</div>
+<div class="content print-area" id="preview" style="display:none; margin-top:12px;">
+<div class="sheet-wrap">
+<div class="sheet" id="sheet">
+<div class="masthead">
+<div class="wj-logo">
+<!-- Embedded WJ logo (base64), so it always shows in PDF -->
+<img alt="WJ logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAH0AAABwCAYAAAAzHn/7AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDoyNkE0NzFFN0I1MjA2ODExODIyQUNDOEQ1QkE3MEJBMyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpGQkZGREJBRTg0NDMxMUU0QTBFRURDNEEwMjM5MkNGNiIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpGQkZGREJBRDg0NDMxMUU0QTBFRURDNEEwMjM5MkNGNiIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M2IChXaW5kb3dzKSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkQ5RTNGNEM5NjcyMTY4MTE4MDgzQUExNTBGMTc5MUYxIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjI2QTQ3MUU3QjUyMDY4MTE4MjJBQ0M4RDVCQTcwQkEzIi8+IDwvcmRmOkRlc2NyaXB0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"/>
+</div>
+<div class="title-wrap"><h1>TIME SHEET</h1></div>
+<div class="spacer"></div>
+</div>
+<div class="topbar">
+<div class="pair"><b>OPERATIVE’S NAME</b> <span id="outName">ALFIE HALEY</span></div>
+<div class="pair"><b>VEHICLE REGISTRATION NO</b> <span id="outVeh">YH70 MXR</span></div>
+</div>
+<table class="timesheet" id="tsTable">
+<thead>
+<tr>
+<th class="col-day">DAY</th>
+<th class="col-date">DATE</th>
+<th class="col-shift">SHIFT<br/><span class="td-small">DAY OR NIGHT</span></th>
+<th class="col-start">START</th>
+<th class="col-finish">FINISH</th>
+<th class="col-ot">O/T HOURS</th>
+<th class="col-loc">LOCATION</th>
+<th class="col-job">JOB NO.</th>
+<th class="col-crew">CREW</th>
+<th class="col-office">OFFICE USE</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+<!-- Bottom boxes -->
+<div class="bottom-row">
+<div class="box comments">
+<div class="box-title">COMMENTS</div>
+<div class="comments-text" id="outComments"></div>
+</div>
+<div class="box auth">
+<div class="box-title">Authorised Name</div>
+<div class="rule"></div>
+<div class="box-title" style="margin-top:8px;">Authorised Signature</div>
+<div class="rule" style="margin-top:auto;"></div>
+</div>
+<div class="box oper">
+<div class="box-title">OPERATIVE’S SIGNATURE</div>
+<div class="rule"></div>
+<div style="margin-top:8px; font-size:11pt;">A.Haley</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+// ----- Date helpers -----
+function parseLooseDate(str){
+  if(!str) return null;
+  const cleaned = (str+'').trim().replace(/[^0-9]+/g, ' ').trim();
+  if(!cleaned) return null;
+  const parts = cleaned.split(' ').map(Number);
+  if(parts.length !== 3) return null;
+  let [a,b,c] = parts;
+  if(a > 31) return new Date(a, (b||1)-1, c||1); // treat as Y M D
+  if(c < 100) c = c >= 70 ? 1900 + c : 2000 + c;
+  return new Date(c, (b||1)-1, a||1);
+}
+const DAY_NAMES = ["SAT", "SUN", "MON", "TUES", "WEDS", "THURS", "FRI"];
+function pad(n){ return n<10 ? "0"+n : ""+n; }
+function formatDDMMYY(d){ const day = pad(d.getDate()); const month = pad(d.getMonth()+1); const yr = (""+d.getFullYear()).slice(-2); return `${day}/${month}/${yr}`; }
+function addDays(base, n){ const d = new Date(base.getFullYear(), base.getMonth(), base.getDate()); d.setDate(d.getDate()+n); return d; }
+
+// ----- State -----
+const state = { startDate: null, week: [], entries: {}, name: 'ALFIE HALEY', veh: 'BG71 YWC', comments: '', daysWorked: 0 };
+function buildWeek(){ state.week = []; for(let i=0;i<7;i++){ state.week.push({ label: DAY_NAMES[i], date: addDays(state.startDate, i) }); } }
+function saveLocal(){
+  localStorage.setItem('ts_state', JSON.stringify({
+    startDate: state.startDate ? state.startDate.toISOString() : null,
+    entries: state.entries, name: state.name, veh: state.veh,
+    comments: state.comments, daysWorked: state.daysWorked
+  }));
+}
+function loadLocal(){
+  try{
+    const raw = localStorage.getItem('ts_state');
+    if(!raw) return;
+    const obj = JSON.parse(raw);
+    if(obj.startDate){
+      const d = new Date(obj.startDate);
+      state.startDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      buildWeek();
+    }
+    state.entries = obj.entries || {};
+    state.name = obj.name || state.name;
+    state.veh = obj.veh || state.veh;
+    state.comments = obj.comments || '';
+    state.daysWorked = Number(obj.daysWorked||0);
+  }catch(e){}
+}
+
+// ----- UI wiring -----
+const startDateEl = document.getElementById('startDate');
+const startDateTextEl = document.getElementById('startDateText');
+const startBtn = document.getElementById('startWeek');
+const opNameEl = document.getElementById('opName');
+const vehRegEl = document.getElementById('vehReg');
+const daysWorkedEl = document.getElementById('daysWorked');
+
+startBtn.addEventListener('click', ()=>{
+  let d = null;
+  if(startDateEl.value){
+    const parts = startDateEl.value.split('-').map(x=>parseInt(x,10));
+    d = new Date(parts[0], parts[1]-1, parts[2]);
+  }else if(startDateTextEl.value){
+    d = parseLooseDate(startDateTextEl.value);
+  }
+  if(!d || isNaN(d.getTime())){ alert('Please select or type a valid Saturday date (start of week).'); return; }
+  state.startDate = d;
+  state.name = opNameEl.value.trim() || state.name;
+  state.veh = vehRegEl.value.trim() || state.veh;
+  state.daysWorked = Math.max(0, Math.min(7, parseInt(daysWorkedEl.value || '0', 10) || 0));
+  buildWeek();
+  currentIndex = 0;
+  renderDayForm();
+  goStep(2);
+  saveLocal();
+});
+
+let currentIndex = 0;
+const dayFormEl = document.getElementById('dayForm');
+const nextDayBtn = document.getElementById('nextDay');
+const back1Btn = document.getElementById('back1');
+
+function renderDayForm(){
+  const w = state.week[currentIndex];
+  if(!w){ return; }
+  const key = currentIndex;
+  const e = state.entries[key] || {worked:false, shift:'Day', start:'', finish:'', location:''};
+  const dateStr = formatDDMMYY(w.date);
+  dayFormEl.innerHTML = `
+    <div class="row">
+      <div class="grid-3">
+        <div><label>Day</label><input type="text" value="${w.label}" disabled /></div>
+        <div><label>Date</label><input type="text" value="${dateStr}" disabled /></div>
+        <div><label>Did you work?</label>
+          <div class="pill" role="group" aria-label="Worked?">
+            <button type="button" id="wYes" class="${e.worked?'active':''}">Yes</button>
+            <button type="button" id="wNo" class="${!e.worked?'active':''}">No</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="workFields" style="${e.worked?'display:block':'display:none'}">
+      <div class="row">
+        <label>Shift</label>
+        <div class="pill" role="group" aria-label="Shift">
+          <button type="button" id="sDay" class="${e.shift==='Day'?'active':''}">Day</button>
+          <button type="button" id="sNight" class="${e.shift==='Night'?'active':''}">Night</button>
+        </div>
+      </div>
+      <div class="grid-3">
+        <div class="row"><label>Start time</label><input id="startTime" type="time" value="${e.start||''}"></div>
+        <div class="row"><label>Finish time</label><input id="finishTime" type="time" value="${e.finish||''}"></div>
+        <div class="row"><label>Location</label><input id="loc" type="text" placeholder="e.g. Solihull" value="${e.location||''}"></div>
+      </div>
+    </div>
+  `;
+  const wYes = document.getElementById('wYes');
+  const wNo = document.getElementById('wNo');
+  const wf = document.getElementById('workFields');
+  wYes.addEventListener('click', ()=>{ e.worked = true; wf.style.display='block'; wYes.classList.add('active'); wNo.classList.remove('active'); });
+  wNo.addEventListener('click', ()=>{ e.worked = false; wf.style.display='none'; wNo.classList.add('active'); wYes.classList.remove('active'); });
+  document.getElementById('sDay').addEventListener('click', (ev)=>{ e.shift='Day'; ev.target.classList.add('active'); document.getElementById('sNight').classList.remove('active'); });
+  document.getElementById('sNight').addEventListener('click', (ev)=>{ e.shift='Night'; ev.target.classList.add('active'); document.getElementById('sDay').classList.remove('active'); });
+
+  nextDayBtn.onclick = ()=>{
+    e.start = (document.getElementById('startTime')||{}).value || '';
+    e.finish = (document.getElementById('finishTime')||{}).value || '';
+    e.location = (document.getElementById('loc')||{}).value || '';
+    state.entries[key] = e;
+    saveLocal();
+    if(currentIndex < 6){ currentIndex++; renderDayForm(); }
+    else { goStep(3); }
+  };
+}
+
+back1Btn.addEventListener('click', ()=>{ if(currentIndex>0){ currentIndex--; renderDayForm(); } else { goStep(1); } });
+
+const commentsBox = document.getElementById('commentsBox');
+document.getElementById('back2').addEventListener('click', ()=> goStep(2));
+document.getElementById('finish').addEventListener('click', ()=>{
+  state.comments = (commentsBox.value || '').trim();
+  populateTable();
+  showPreview();
+  saveLocal();
+});
+
+const toPreviewBtn = document.getElementById('toPreview');
+const savePdfBtn = document.getElementById('savePdfBtn');
+toPreviewBtn.addEventListener('click', ()=>{ populateTable(); showPreview(); });
+
+/* Export via html2canvas + jsPDF (same flow as your app) */
+savePdfBtn.addEventListener('click', async () => {
+  if (typeof populateTable === 'function') { try { populateTable(); } catch(e){} }
+  if (typeof showPreview === 'function') { try { showPreview(); } catch(e){} }
+
+  const { jsPDF } = window.jspdf;
+  const elementToCapture =
+    document.querySelector('#sheet')?.parentElement || document.querySelector('#sheet');
+
+  const canvas = await html2canvas(elementToCapture, {
+    scale: 2,
+    backgroundColor: '#fff'
+  });
+
+  const imgData = canvas.toDataURL('image/jpeg', 0.96);
+  const pdf = new jsPDF('p', 'pt', 'a4');
+  const pageWidth  = pdf.internal.pageSize.getWidth();
+  const pageHeight = (canvas.height * pageWidth) / canvas.width;
+
+  pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
+  pdf.save('timesheet.pdf');
+});
+
+window.onbeforeprint = ()=>{ populateTable(); showPreview(); };
+
+/* Comments composer */
+function composedComments(){
+  const days = Number(state.daysWorked||0);
+  const extra = state.comments ? `\n${state.comments}` : '';
+  return `Days: ${days}${extra}`;
+}
+
+/* Build preview table (with gap rows) */
+function showPreview(){
+  document.getElementById('outName').textContent = state.name;
+  document.getElementById('outVeh').textContent = state.veh;
+  document.getElementById('outComments').textContent = composedComments();
+  document.getElementById('preview').style.display = 'block';
+  window.scrollTo({ top: document.getElementById('preview').offsetTop - 8, behavior: 'smooth' });
+}
+
+function populateTable(){
+  if(!state.startDate){ return; }
+  buildWeek();
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+  for(let i=0;i<7;i++){
+    const d = state.week[i];
+    const e = state.entries[i] || {};
+    const worked = !!e.worked;
+    const dateStr = formatDDMMYY(d.date);
+    const shift = worked ? (e.shift || '') : '';
+    const start = worked ? (e.start || '') : '';
+    const finish = worked ? (e.finish || '') : '';
+    const loc = worked ? (e.location || '') : '';
+    const dayText = d.label;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="col-day td-center">${dayText}</td>
+      <td class="col-date td-date td-center">${dateStr}</td>
+      <td class="col-shift td-center td-time">${shift || ''}</td>
+      <td class="col-start td-center td-time">${start || ''}</td>
+      <td class="col-finish td-center td-time">${finish || ''}</td>
+      <td class="col-ot td-center"></td>
+      <td class="col-loc td-left td-time">${loc || ''}</td>
+      <td class="col-job td-center">On kdo</td>
+      <td class="col-crew td-center">105</td>
+      <td class="col-office td-center"></td>
+    `;
+    tbody.appendChild(tr);
+
+    const gap = document.createElement('tr');
+    gap.className = 'gap-row';
+    gap.innerHTML = `
+      <td></td><td></td><td></td><td></td><td></td>
+      <td></td><td></td><td></td><td></td><td></td>
+    `;
+    tbody.appendChild(gap);
+  }
+}
+
+function goStep(n){ document.querySelectorAll('.step').forEach(el=>el.classList.remove('active')); document.getElementById('step-'+n).classList.add('active'); }
+</script>
+<!-- Export libs -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+// PWA: Service worker registration + install prompt
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(console.error);
+}
+
+let deferredPrompt = null;
+const installBtn = document.getElementById('installBtn');
+if (installBtn) {
+  installBtn.style.display = 'none';
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.style.display = 'inline-flex';
+  });
+  installBtn.addEventListener('click', async () => {
+    if (!deferredPrompt) { alert('On iPhone: Share → Add to Home Screen'); return; }
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    if (outcome !== 'accepted' && /iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      alert('On iPhone: Share → Add to Home Screen');
+    }
+  });
+}
+</script></body>
+</html>
