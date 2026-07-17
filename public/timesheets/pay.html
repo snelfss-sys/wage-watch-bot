@@ -16,42 +16,37 @@
   button, .btn{ appearance:none; border:1px solid #dadada; background:#f6f7f8; padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:600; font-size:14px; text-decoration:none; color:#111; display:inline-flex; align-items:center; gap:6px; }
   button:hover{ background:#eef0f2; }
   .primary{ background:#111; color:#fff; border-color:#111; }
-  .primary:hover{ filter:brightness(1.1); }
   .danger{ background:#fff; color:#b00020; border-color:#e5b4b4; }
   .content{ padding: 16px; }
-  h3{ margin: 0 0 10px; }
+  h3{ margin: 0 0 10px; } h4{ margin:14px 0 6px; }
   .muted{ color:#555; font-size:12px; }
   label{ font-weight:600; font-size: 14px; display:block; margin-bottom:4px; }
-  input[type="text"], input[type="number"], input[type="file"], input[type="time"], select, textarea{
+  input[type="text"], input[type="number"], input[type="file"], select{
     width:100%; padding:10px 12px; border:1px solid #d8d8d8; border-radius:10px; font-size:15px; box-sizing:border-box; background:#fff; color:#111;
   }
-  .row{ margin-bottom:10px; }
-  .grid-2{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
-  @media (max-width: 640px){ .grid-2{ grid-template-columns: 1fr; } }
-  .rates-list{ display:flex; flex-direction:column; gap:6px; }
-  .rate-row{ display:grid; grid-template-columns: 1fr 120px auto; gap:8px; align-items:center; background:#f7f8fa; border:1px solid #e6e8ec; border-radius:10px; padding:8px; }
+  .rate-row{ display:grid; grid-template-columns: 1fr 110px 90px; gap:8px; align-items:center; background:#f7f8fa; border:1px solid #e6e8ec; border-radius:10px; padding:8px; margin-bottom:6px; }
   .rate-row .name{ font-weight:600; font-size:14px; }
-  .rate-row input{ padding:8px 10px; }
-  .rate-row .rm{ background:transparent; border:none; color:#b00020; font-size:18px; cursor:pointer; padding:4px 8px; }
-  .kbd{ font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; background:#f0f1f3; padding:2px 6px; border-radius:6px; }
+  .kbd{ font-family: ui-monospace, Menlo, monospace; font-size:12px; background:#f0f1f3; padding:2px 6px; border-radius:6px; }
   table.calc{ width:100%; border-collapse: collapse; margin-top:6px; }
-  .calc th, .calc td{ border-bottom:1px solid #eee; padding:8px 6px; text-align:left; font-size:14px; }
+  .calc th, .calc td{ border-bottom:1px solid #eee; padding:8px 6px; text-align:left; font-size:13px; vertical-align:top; }
   .calc th{ background:#fafafa; font-weight:700; }
   .calc td.num, .calc th.num{ text-align:right; font-variant-numeric: tabular-nums; }
-  .calc select, .calc input{ padding:6px 8px; border:1px solid #d8d8d8; border-radius:8px; font-size:13px; background:#fff; color:#111; width:100%; }
-  .totals{ display:flex; justify-content:space-between; align-items:baseline; margin-top:10px; padding:12px; background:#111; color:#fff; border-radius:10px; gap:12px; flex-wrap:wrap;}
-  .totals .amt{ font-size:26px; font-weight:800; font-variant-numeric: tabular-nums; }
-  details.raw{ margin-top:10px; }
-  details.raw pre{ background:#0b0b0c; color:#e6e6e6; padding:10px; border-radius:8px; max-height:260px; overflow:auto; font-size:12px; white-space:pre-wrap; }
+  .calc small{ color:#666; display:block; }
+  .totals{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:12px; }
+  .tot-box{ padding:12px; border-radius:10px; }
+  .tot-gross{ background:#111; color:#fff; }
+  .tot-net{ background:#0a7a2f; color:#fff; }
+  .tot-box .amt{ font-size:24px; font-weight:800; font-variant-numeric: tabular-nums; }
+  .tot-box small{ opacity:.85; }
+  details.raw pre{ background:#0b0b0c; color:#e6e6e6; padding:10px; border-radius:8px; max-height:220px; overflow:auto; font-size:12px; white-space:pre-wrap; }
   .status{ margin-top:8px; font-size:13px; }
   .ok{ color:#0a7a2f; } .warn{ color:#a15c00; } .err{ color:#b00020; }
   .drop{ border:2px dashed #cfd4dc; border-radius:12px; padding:18px; text-align:center; color:#555; background:#fafbfc; }
-  .drop.dragover{ background:#eef4ff; border-color:#7ea6ff; color:#1a4fbf; }
-  .pill{ display:inline-flex; gap:6px; padding:4px; background:#f3f4f6; border-radius:999px; flex-wrap:wrap; }
-  .pill button{ border-radius:999px; padding:6px 10px; background:transparent; border:none; font-size:13px; }
-  .pill button.active{ background:#111; color:#fff; }
-  .add-row{ display:grid; grid-template-columns: 1fr 120px auto; gap:8px; margin-top:8px; }
-  .badge{ display:inline-block; padding:2px 8px; border-radius:999px; background:#eef4ff; color:#1a4fbf; font-size:11px; font-weight:700; }
+  .drop.dragover{ background:#eef4ff; border-color:#7ea6ff; }
+  .month-row{ display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#f7f8fa; border:1px solid #e6e8ec; border-radius:8px; margin-bottom:6px; font-size:14px; }
+  .month-row b{ font-variant-numeric: tabular-nums; }
+  .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  @media (max-width:640px){ .grid-2, .totals{ grid-template-columns:1fr; } .rate-row{ grid-template-columns:1fr 90px 70px; } }
 </style>
 </head>
 <body>
@@ -60,409 +55,404 @@
   <div class="card">
     <div class="header">
       <div class="title">💷 Pay &amp; Rates</div>
-      <div class="controls">
-        <a class="btn" href="index.html">← Back to Timesheet</a>
-      </div>
+      <div class="controls"><a class="btn" href="index.html">← Back to Timesheet</a></div>
     </div>
   </div>
 
   <!-- 1) Upload payslip -->
-  <div class="card">
-    <div class="content">
-      <h3>1) Upload a payslip PDF</h3>
-      <p class="muted">Payslip is read on your device (nothing is uploaded). Every rate line (Day Shift, W/E Night, Holiday, etc.) is pulled out and saved for next time.</p>
-      <div class="drop" id="drop">
-        <input type="file" id="pdfFile" accept="application/pdf" style="display:none"/>
-        <button class="btn primary" id="pickBtn" type="button">Choose PDF payslip</button>
-        <div class="muted" style="margin-top:6px;">…or drag &amp; drop a PDF here</div>
-      </div>
-      <div class="status" id="parseStatus"></div>
-      <details class="raw" id="rawWrap" style="display:none">
-        <summary>Show extracted text (for debugging)</summary>
-        <pre id="rawText"></pre>
-      </details>
+  <div class="card"><div class="content">
+    <h3>1) Upload a payslip PDF</h3>
+    <p class="muted">Read on-device. We only pull the rates we recognise (Day Shift, Night Shift, W/E Day, W/E Night, Stand Down, Overtime).</p>
+    <div class="drop" id="drop">
+      <input type="file" id="pdfFile" accept="application/pdf" style="display:none"/>
+      <button class="btn primary" id="pickBtn" type="button">Choose PDF payslip</button>
+      <div class="muted" style="margin-top:6px;">…or drag &amp; drop a PDF here</div>
     </div>
-  </div>
+    <div class="status" id="parseStatus"></div>
+    <details class="raw" id="rawWrap" style="display:none;margin-top:8px;">
+      <summary>Show extracted text</summary><pre id="rawText"></pre>
+    </details>
+  </div></div>
 
-  <!-- 2) Rates library -->
-  <div class="card">
-    <div class="content">
-      <h3>2) Your rate library <span class="badge" id="rateCount">0</span></h3>
-      <p class="muted">These are the £/day rates used in the calculator. Edit anything the scan got wrong, add missing ones, or wipe them all when your pay changes.</p>
-      <div class="rates-list" id="ratesList"></div>
-      <div class="add-row">
-        <input type="text" id="newName" placeholder="Add a rate (e.g. Night Shift)"/>
-        <input type="number" step="0.01" min="0" id="newRate" placeholder="£/day"/>
-        <button class="btn" id="addRate" type="button">Add</button>
-      </div>
-      <div class="controls" style="margin-top:10px;">
-        <button class="btn primary" id="saveRates">Save rates</button>
-        <button class="btn danger" id="clearRates">Clear all rates</button>
-        <span class="status" id="saveStatus"></span>
-      </div>
-      <div class="muted" style="margin-top:6px;">Saved locally as <span class="kbd">wj_rates</span>. Re-upload a new payslip whenever your pay changes and the new rates will replace these.</div>
+  <!-- 2) Rates -->
+  <div class="card"><div class="content">
+    <h3>2) Your rates</h3>
+    <p class="muted">Base shifts are £ per day. Overtime rates are £ per hour, paid on any time above 9 hours worked, in 15-minute chunks (0.25 / 0.50 / 0.75 of the hourly rate).</p>
+    <h4>Base shifts (£/day)</h4>
+    <div id="baseList"></div>
+    <h4>Overtime (£/hour, applied after 9h)</h4>
+    <div id="otList"></div>
+    <div class="controls" style="margin-top:10px;">
+      <button class="btn primary" id="saveRates">Save rates</button>
+      <button class="btn" id="resetRates">Reset to defaults</button>
+      <span class="status" id="saveStatus"></span>
     </div>
-  </div>
+    <div class="muted" style="margin-top:6px;">Saved locally as <span class="kbd">wj_rates_v2</span>.</div>
+  </div></div>
 
-  <!-- 3) Calculator -->
-  <div class="card">
-    <div class="content">
-      <h3>3) This week's wage</h3>
-      <div class="pill" role="group" aria-label="Source">
-        <button type="button" id="srcTs" class="active">Use my timesheet</button>
-        <button type="button" id="srcManual">Enter manually</button>
+  <!-- 3) Wage this week -->
+  <div class="card"><div class="content">
+    <h3>3) This week's wage</h3>
+    <p class="muted">Reads start/finish times from your timesheet. Hours are rounded to the nearest 15 minutes. Change any rate dropdown to override.</p>
+    <table class="calc" id="calcTable">
+      <thead><tr>
+        <th>Day</th><th>Date</th><th>Hours</th><th style="min-width:150px;">Base rate</th><th style="min-width:150px;">OT rate</th><th class="num">Pay</th>
+      </tr></thead>
+      <tbody id="calcBody"></tbody>
+    </table>
+
+    <div class="totals">
+      <div class="tot-box tot-gross">
+        <div style="font-weight:700;">Gross (before tax)</div>
+        <div class="amt" id="totalGross">£0.00</div>
+        <small id="totalsBreak"></small>
       </div>
-      <p class="muted" style="margin-top:8px;" id="srcHint">Reads the days you entered on the timesheet page. Each day auto-picks a rate (Day / W/E Night etc.) — change any dropdown to override.</p>
-
-      <table class="calc" id="calcTable">
-        <thead>
-          <tr>
-            <th>Day</th><th>Date</th><th style="min-width:170px;">Rate</th>
-            <th style="width:80px;">Units</th><th class="num">Pay</th>
-          </tr>
-        </thead>
-        <tbody id="calcBody"></tbody>
-      </table>
-
-      <div class="totals">
-        <div>
-          <div style="font-weight:700;">Estimated gross this week</div>
-          <div class="muted" id="totalsBreak" style="color:#c7cbd3;"></div>
-        </div>
-        <div class="amt" id="totalAmt">£0.00</div>
+      <div class="tot-box tot-net">
+        <div style="font-weight:700;">Take-home (after 20% tax)</div>
+        <div class="amt" id="totalNet">£0.00</div>
+        <small id="taxBreak">Tax code 1254L · £241.73/wk tax-free</small>
       </div>
-      <div class="muted" style="margin-top:8px;">Gross only — before tax, NI &amp; pension.</div>
     </div>
-  </div>
+    <div class="muted" style="margin-top:8px;">Tax only — NI &amp; pension not included.</div>
+
+    <div class="controls" style="margin-top:12px;">
+      <input type="text" id="weekLabel" placeholder="Label (e.g. Jan Week 1)" style="max-width:220px;"/>
+      <button class="btn primary" id="saveWeek">Save this week</button>
+      <span class="status" id="saveWeekStatus"></span>
+    </div>
+  </div></div>
+
+  <!-- 4) Monthly totals -->
+  <div class="card"><div class="content">
+    <h3>4) Monthly totals</h3>
+    <p class="muted">Every saved week goes into a month bucket based on the week's Saturday start date. Export the JSON to keep a backup on GitHub.</p>
+    <div id="monthsList"></div>
+    <div class="controls" style="margin-top:10px;">
+      <button class="btn" id="exportAll">Download all weeks (JSON)</button>
+      <label class="btn" style="cursor:pointer;">Import JSON<input type="file" id="importFile" accept="application/json" style="display:none"/></label>
+      <button class="btn danger" id="clearWeeks">Clear all saved weeks</button>
+    </div>
+  </div></div>
 
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
-  if (window['pdfjsLib']) {
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-  }
+if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-  const RATES_KEY = 'wj_rates';
-  const TS_KEY = 'ts_state';
-  const OVERRIDE_KEY = 'wj_weekOverrides'; // per-day category picks for current week
-  const MANUAL_KEY = 'wj_manualWeek';
+const RATES_KEY = 'wj_rates_v2';
+const TS_KEY = 'ts_state';
+const WEEKS_KEY = 'wj_savedWeeks';
+const OVERRIDE_KEY = 'wj_weekOverrides';
 
-  // ---- Rate storage ----
-  function loadRates(){
-    try {
-      const r = JSON.parse(localStorage.getItem(RATES_KEY));
-      if (r && Array.isArray(r.items)) return r;
-    } catch(e){}
-    return { items: [], savedAt: null };
-  }
-  function persistRates(r){ localStorage.setItem(RATES_KEY, JSON.stringify(r)); }
+// ---- Fixed rate schema ----
+const BASE_NAMES = ['Day Shift','Night Shift','W/E Day','W/E Night','Stand Down'];
+const OT_NAMES   = ['Day Overtime','Weekend Day Overtime','Night Overtime','Overtime rate'];
+const DEFAULTS = {
+  'Day Shift': 114.39, 'Night Shift': 0, 'W/E Day': 0, 'W/E Night': 171.63, 'Stand Down': 0,
+  'Day Overtime': 15.89, 'Weekend Day Overtime': 15.89, 'Night Overtime': 19.07, 'Overtime rate': 15.89,
+};
 
-  let rates = loadRates();
+function loadRates(){
+  try { const r = JSON.parse(localStorage.getItem(RATES_KEY)); if(r && r.rates) return r; } catch(e){}
+  return { rates: {...DEFAULTS}, savedAt:null };
+}
+function saveRates(){ localStorage.setItem(RATES_KEY, JSON.stringify(rates)); }
+let rates = loadRates();
 
-  function renderRates(){
-    const list = document.getElementById('ratesList');
-    list.innerHTML = '';
-    document.getElementById('rateCount').textContent = rates.items.length;
-    if(rates.items.length === 0){
-      const empty = document.createElement('div');
-      empty.className = 'muted';
-      empty.textContent = 'No rates yet — upload a payslip above, or add one manually below.';
-      list.appendChild(empty);
-      return;
-    }
-    rates.items.forEach((it, i) => {
-      const row = document.createElement('div');
-      row.className = 'rate-row';
-      const name = document.createElement('input');
-      name.type='text'; name.value = it.name; name.oninput = e => { rates.items[i].name = e.target.value; };
-      const rate = document.createElement('input');
-      rate.type='number'; rate.step='0.01'; rate.min='0'; rate.value = it.rate;
-      rate.oninput = e => { rates.items[i].rate = parseFloat(e.target.value) || 0; refreshCalc(); };
-      const rm = document.createElement('button');
-      rm.className='rm'; rm.type='button'; rm.textContent='✕'; rm.title='Remove';
-      rm.onclick = () => { rates.items.splice(i,1); renderRates(); refreshCalc(); };
-      row.appendChild(name); row.appendChild(rate); row.appendChild(rm);
-      list.appendChild(row);
+function renderRates(){
+  const build = (id, names) => {
+    const el = document.getElementById(id); el.innerHTML = '';
+    names.forEach(n => {
+      const row = document.createElement('div'); row.className='rate-row';
+      const isOt = OT_NAMES.includes(n);
+      row.innerHTML = `<div class="name">${n}</div>
+        <input type="number" step="0.01" min="0" value="${(rates.rates[n]||0).toFixed(2)}"/>
+        <div class="muted">${isOt?'£/hour':'£/day'}</div>`;
+      row.querySelector('input').oninput = e => { rates.rates[n] = parseFloat(e.target.value)||0; refreshCalc(); };
+      el.appendChild(row);
     });
-  }
-
-  document.getElementById('addRate').onclick = () => {
-    const n = document.getElementById('newName').value.trim();
-    const r = parseFloat(document.getElementById('newRate').value);
-    if(!n || !(r > 0)) return;
-    rates.items.push({ name: n, rate: r });
-    document.getElementById('newName').value=''; document.getElementById('newRate').value='';
-    renderRates(); refreshCalc();
   };
-  document.getElementById('saveRates').onclick = () => {
-    rates.savedAt = new Date().toISOString();
-    persistRates(rates);
-    const s = document.getElementById('saveStatus');
-    s.textContent='Saved ✓'; s.className='status ok';
-    setTimeout(()=> s.textContent='', 2000);
-    refreshCalc();
-  };
-  document.getElementById('clearRates').onclick = () => {
-    if(!confirm('Clear every saved rate?')) return;
-    rates = { items: [], savedAt: null };
-    localStorage.removeItem(RATES_KEY);
-    renderRates(); refreshCalc();
-  };
+  build('baseList', BASE_NAMES);
+  build('otList', OT_NAMES);
+}
+document.getElementById('saveRates').onclick = () => {
+  rates.savedAt = new Date().toISOString(); saveRates();
+  const s = document.getElementById('saveStatus'); s.textContent='Saved ✓'; s.className='status ok';
+  setTimeout(()=>s.textContent='',1800);
+};
+document.getElementById('resetRates').onclick = () => {
+  if(!confirm('Reset all rates to defaults?')) return;
+  rates = { rates:{...DEFAULTS}, savedAt:null }; saveRates(); renderRates(); refreshCalc();
+};
+renderRates();
 
-  renderRates();
+// ---- PDF parsing (map to fixed names) ----
+const drop = document.getElementById('drop');
+const fileInput = document.getElementById('pdfFile');
+document.getElementById('pickBtn').onclick = () => fileInput.click();
+fileInput.onchange = e => { if(e.target.files[0]) handlePdf(e.target.files[0]); };
+['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('dragover'); }));
+['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('dragover'); }));
+drop.addEventListener('drop', e => { const f = e.dataTransfer?.files?.[0]; if(f && f.type==='application/pdf') handlePdf(f); });
 
-  // ---- PDF parsing ----
-  const drop = document.getElementById('drop');
-  const fileInput = document.getElementById('pdfFile');
-  document.getElementById('pickBtn').onclick = () => fileInput.click();
-  fileInput.onchange = e => { if(e.target.files[0]) handlePdf(e.target.files[0]); };
-  ['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('dragover'); }));
-  ['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('dragover'); }));
-  drop.addEventListener('drop', e => { const f = e.dataTransfer?.files?.[0]; if(f && f.type==='application/pdf') handlePdf(f); });
+const PATTERNS = [
+  { key:'W/E Night',    re: /w\/?e\s*night|weekend\s*night/i },
+  { key:'W/E Day',      re: /w\/?e\s*day|weekend\s*day(?!\s*over)/i },
+  { key:'Night Shift',  re: /night\s*shift|^night(?!\s*over)/i },
+  { key:'Day Shift',    re: /day\s*shift|^day(?!\s*over)/i },
+  { key:'Stand Down',   re: /stand[\s-]*down/i },
+  { key:'Night Overtime', re: /night\s*over|over.*night/i },
+  { key:'Weekend Day Overtime', re: /(w\/?e|weekend).*over|over.*(w\/?e|weekend)/i },
+  { key:'Day Overtime', re: /day\s*over|over.*day/i },
+  { key:'Overtime rate', re: /overtime|^ot\b/i },
+];
 
-  async function handlePdf(file){
-    const status = document.getElementById('parseStatus');
-    status.textContent = 'Reading PDF…'; status.className='status';
-    try {
-      const buf = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-
-      // Reconstruct lines using y-coordinates so column-aligned rows stay together
-      let allLines = [];
-      for(let p=1; p<=pdf.numPages; p++){
-        const page = await pdf.getPage(p);
-        const tc = await page.getTextContent();
-        const byY = new Map();
-        for(const it of tc.items){
-          const y = Math.round(it.transform[5]);
-          if(!byY.has(y)) byY.set(y, []);
-          byY.get(y).push({ x: it.transform[4], str: it.str });
-        }
-        const ys = [...byY.keys()].sort((a,b) => b - a);
-        for(const y of ys){
-          const parts = byY.get(y).sort((a,b) => a.x - b.x).map(p => p.str).join(' ');
-          allLines.push(parts.replace(/\s+/g,' ').trim());
-        }
+async function handlePdf(file){
+  const status = document.getElementById('parseStatus');
+  status.textContent='Reading PDF…'; status.className='status';
+  try {
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    const lines = [];
+    for(let p=1;p<=pdf.numPages;p++){
+      const page = await pdf.getPage(p);
+      const tc = await page.getTextContent();
+      const byY = new Map();
+      for(const it of tc.items){
+        const y = Math.round(it.transform[5]);
+        if(!byY.has(y)) byY.set(y,[]);
+        byY.get(y).push({ x: it.transform[4], str: it.str });
       }
-      const rawText = allLines.filter(Boolean).join('\n');
-      document.getElementById('rawWrap').style.display='block';
-      document.getElementById('rawText').textContent = rawText;
-
-      const found = extractRates(allLines);
-      if(found.length === 0){
-        status.textContent = "Couldn't find any rate lines — the payslip layout may be different. You can still add rates manually below.";
-        status.className = 'status warn';
-        return;
-      }
-
-      // Replace library with what we found. Preserve user-added extras not in payslip? Merge instead.
-      const merged = mergeRates(rates.items, found);
-      rates = { items: merged, savedAt: new Date().toISOString() };
-      persistRates(rates);
-      renderRates();
-      refreshCalc();
-
-      status.innerHTML = `Found <b>${found.length}</b> rate line${found.length===1?'':'s'} and saved them. Check the list below and hit Save if you tweak anything.`;
-      status.className = 'status ok';
-    } catch(err){
-      console.error(err);
-      status.textContent = "Sorry — couldn't read that PDF.";
-      status.className='status err';
+      [...byY.keys()].sort((a,b)=>b-a).forEach(y => {
+        lines.push(byY.get(y).sort((a,b)=>a.x-b.x).map(p=>p.str).join(' ').replace(/\s+/g,' ').trim());
+      });
     }
-  }
+    const rawText = lines.filter(Boolean).join('\n');
+    document.getElementById('rawWrap').style.display='block';
+    document.getElementById('rawText').textContent = rawText;
 
-  // Merge by case-insensitive name; new value wins, extras are kept
-  function mergeRates(existing, incoming){
-    const map = new Map();
-    for(const e of existing) map.set(e.name.toLowerCase(), { ...e });
-    for(const n of incoming) map.set(n.name.toLowerCase(), { name: n.name, rate: n.rate });
-    return [...map.values()];
-  }
-
-  // Look for lines of the form:  "<Description>  <units>  <rate>  <amount>"
-  // where units*rate ≈ amount (±2p) and rate is positive.
-  function extractRates(lines){
-    const out = [];
-    const seen = new Set();
-    // capture up to 4 signed decimals at end of line
     const numRe = /(-?\d+(?:\.\d{1,4}))/g;
+    let matched = 0; const claimed = new Set();
     for(const line of lines){
-      const nums = [...line.matchAll(numRe)].map(m => ({ v: parseFloat(m[0]), i: m.index, raw: m[0] }));
+      const nums = [...line.matchAll(numRe)].map(m=>({v:parseFloat(m[0]),i:m.index}));
       if(nums.length < 3) continue;
-      // take the last three numbers as units, rate, amount
-      const [u, r, a] = nums.slice(-3);
-      if(!(r.v > 0) || r.v > 1000) continue;
-      const expected = u.v * r.v;
-      if(Math.abs(expected - a.v) > 0.05) continue;
-      // description = everything before the first of the three
-      const name = line.slice(0, u.i).replace(/\s+/g,' ').trim();
-      if(!name || name.length > 60) continue;
-      // skip obviously-not-a-rate rows
-      if(/total|gross|paid|tax|insurance|pension|period|code|method|department/i.test(name)) continue;
-      const key = name.toLowerCase();
-      if(seen.has(key)) continue;
-      seen.add(key);
-      out.push({ name, rate: r.v });
-    }
-    return out;
-  }
-
-  // ---- Calculator ----
-  let source = 'ts';
-  const srcTsBtn = document.getElementById('srcTs');
-  const srcManBtn = document.getElementById('srcManual');
-  srcTsBtn.onclick = () => { source='ts'; srcTsBtn.classList.add('active'); srcManBtn.classList.remove('active'); document.getElementById('srcHint').textContent='Reads the days you entered on the timesheet page. Each day auto-picks a rate — change any dropdown to override.'; refreshCalc(); };
-  srcManBtn.onclick = () => { source='manual'; srcManBtn.classList.add('active'); srcTsBtn.classList.remove('active'); document.getElementById('srcHint').textContent='Tick each day you worked and pick which rate applies.'; refreshCalc(); };
-
-  const DAY_NAMES = ["SAT","SUN","MON","TUES","WEDS","THURS","FRI"];
-  function pad(n){ return n<10?'0'+n:''+n; }
-  function ddmmyy(d){ return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${(''+d.getFullYear()).slice(-2)}`; }
-  function loadTs(){ try { return JSON.parse(localStorage.getItem(TS_KEY)) || null; } catch(e){ return null; } }
-  function loadOverrides(){ try { return JSON.parse(localStorage.getItem(OVERRIDE_KEY)) || {}; } catch(e){ return {}; } }
-  function saveOverrides(o){ localStorage.setItem(OVERRIDE_KEY, JSON.stringify(o)); }
-
-  // Match a day to the best available rate name
-  function guessRateName(dayInfo){
-    if(!dayInfo.worked) return '';
-    const names = rates.items.map(r => r.name);
-    const isWeekend = dayInfo.day === 'SAT' || dayInfo.day === 'SUN';
-    const shift = (dayInfo.shift || '').toLowerCase();
-    const tests = [];
-    if(isWeekend && shift === 'night') tests.push(/w\/?e.*night|weekend.*night/i);
-    if(isWeekend && shift === 'day')   tests.push(/w\/?e.*day|weekend.*day|saturday|sunday/i);
-    if(!isWeekend && shift === 'night') tests.push(/^night(?!\/)|night shift/i);
-    if(!isWeekend && shift === 'day')   tests.push(/^day shift|^day$|^weekday/i);
-    // generic fallbacks
-    tests.push(/day shift/i, /shift/i);
-    for(const re of tests){
-      const hit = names.find(n => re.test(n));
-      if(hit) return hit;
-    }
-    return names[0] || '';
-  }
-
-  function buildRowsFromTs(){
-    const s = loadTs();
-    if(!s || !s.startDate) return null;
-    const start = new Date(s.startDate);
-    const rows = [];
-    for(let i=0;i<7;i++){
-      const d = new Date(start.getFullYear(), start.getMonth(), start.getDate()+i);
-      const e = (s.entries && s.entries[i]) || {};
-      rows.push({
-        i, day: DAY_NAMES[i], date: ddmmyy(d),
-        shift: e.worked ? (e.shift || 'Day') : '',
-        worked: !!e.worked,
-      });
-    }
-    return rows;
-  }
-  function buildRowsManual(){
-    let saved = [];
-    try { saved = JSON.parse(localStorage.getItem(MANUAL_KEY)||'[]'); } catch(e){}
-    const rows = [];
-    for(let i=0;i<7;i++){
-      const s = saved[i] || {};
-      rows.push({ i, day: DAY_NAMES[i], date:'', shift: s.shift || '', worked: !!s.worked });
-    }
-    return rows;
-  }
-  function saveManual(rows){
-    localStorage.setItem(MANUAL_KEY, JSON.stringify(rows.map(r => ({ worked:r.worked, shift:r.shift }))));
-  }
-
-  function refreshCalc(){
-    const body = document.getElementById('calcBody');
-    body.innerHTML = '';
-
-    let rows;
-    if(source === 'ts'){
-      rows = buildRowsFromTs();
-      if(!rows){
-        const tr=document.createElement('tr');
-        tr.innerHTML=`<td colspan="5" class="muted" style="padding:14px;">No timesheet data yet — fill it in on the <a href="index.html">timesheet page</a>, or switch to "Enter manually".</td>`;
-        body.appendChild(tr);
-        document.getElementById('totalAmt').textContent='£0.00';
-        document.getElementById('totalsBreak').textContent='';
-        return;
+      const [u,r,a] = nums.slice(-3);
+      if(!(r.v>0) || r.v>1000) continue;
+      if(Math.abs(u.v*r.v - a.v) > 0.05) continue;
+      const desc = line.slice(0,u.i).replace(/\s+/g,' ').trim();
+      if(!desc || /total|gross|tax|insurance|pension|period|method|department/i.test(desc)) continue;
+      for(const p of PATTERNS){
+        if(claimed.has(p.key)) continue;
+        if(p.re.test(desc)){ rates.rates[p.key] = r.v; claimed.add(p.key); matched++; break; }
       }
-    } else {
-      rows = buildRowsManual();
     }
+    if(matched === 0){ status.textContent="Couldn't match any known rate names — edit them by hand below."; status.className='status warn'; return; }
+    saveRates(); renderRates(); refreshCalc();
+    status.innerHTML = `Updated <b>${matched}</b> rate${matched===1?'':'s'} from the payslip. Review below and hit Save.`;
+    status.className='status ok';
+  } catch(err){
+    console.error(err);
+    status.textContent="Sorry — couldn't read that PDF."; status.className='status err';
+  }
+}
 
-    const overrides = loadOverrides();
-    let total = 0, daysWorked = 0;
+// ---- Calculator ----
+const DAY_NAMES = ["SAT","SUN","MON","TUES","WEDS","THURS","FRI"];
+const pad = n => n<10?'0'+n:''+n;
+const ddmmyy = d => `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${(''+d.getFullYear()).slice(-2)}`;
+const loadTs = () => { try { return JSON.parse(localStorage.getItem(TS_KEY)); } catch(e){ return null; } };
+const loadOverrides = () => { try { return JSON.parse(localStorage.getItem(OVERRIDE_KEY))||{}; } catch(e){ return {}; } };
+const saveOverridesFn = o => localStorage.setItem(OVERRIDE_KEY, JSON.stringify(o));
 
-    rows.forEach(r => {
-      const tr = document.createElement('tr');
+// hours from HH:MM start/finish, rounded to nearest 0.25h
+function computeHours(start, finish){
+  if(!start || !finish) return 0;
+  const [sh,sm] = start.split(':').map(Number);
+  const [fh,fm] = finish.split(':').map(Number);
+  let mins = (fh*60+fm) - (sh*60+sm);
+  if(mins <= 0) mins += 24*60; // crossed midnight
+  const h = mins / 60;
+  return Math.round(h*4)/4;
+}
 
-      // Day
-      const tdDay = document.createElement('td'); tdDay.textContent = r.day;
+function guessBaseRate(day, shift){
+  const weekend = day==='SAT'||day==='SUN';
+  if(weekend && shift==='Night') return 'W/E Night';
+  if(weekend) return 'W/E Day';
+  if(shift==='Night') return 'Night Shift';
+  return 'Day Shift';
+}
+function guessOtRate(day, shift){
+  const weekend = day==='SAT'||day==='SUN';
+  if(shift==='Night') return 'Night Overtime';
+  if(weekend) return 'Weekend Day Overtime';
+  return 'Day Overtime';
+}
 
-      // Date / worked toggle
-      const tdDate = document.createElement('td');
-      if(source === 'ts'){
-        tdDate.textContent = r.date;
-      } else {
-        const cb = document.createElement('input');
-        cb.type='checkbox'; cb.checked = r.worked;
-        cb.onchange = () => { r.worked = cb.checked; if(r.worked && !r.shift) r.shift='Day'; saveManual(rows); refreshCalc(); };
-        const shiftSel = document.createElement('select');
-        ['','Day','Night'].forEach(v => { const o=document.createElement('option'); o.value=v; o.textContent=v||'—'; if(r.shift===v) o.selected=true; shiftSel.appendChild(o); });
-        shiftSel.style.marginTop='4px';
-        shiftSel.onchange = () => { r.shift = shiftSel.value; saveManual(rows); refreshCalc(); };
-        tdDate.appendChild(cb); tdDate.appendChild(document.createTextNode(' worked'));
-        tdDate.appendChild(shiftSel);
-      }
+function buildRows(){
+  const s = loadTs();
+  if(!s || !s.startDate) return null;
+  const start = new Date(s.startDate);
+  const rows = [];
+  for(let i=0;i<7;i++){
+    const d = new Date(start.getFullYear(), start.getMonth(), start.getDate()+i);
+    const e = (s.entries && s.entries[i]) || {};
+    const worked = !!e.worked;
+    const shift = worked ? (e.shift||'Day') : '';
+    const hours = worked ? computeHours(e.start, e.finish) : 0;
+    rows.push({ i, day: DAY_NAMES[i], date: ddmmyy(d), worked, shift, hours });
+  }
+  return { rows, startDate: s.startDate };
+}
 
-      // Rate dropdown
-      const tdRate = document.createElement('td');
+function refreshCalc(){
+  const body = document.getElementById('calcBody'); body.innerHTML='';
+  const built = buildRows();
+  if(!built){
+    body.innerHTML = `<tr><td colspan="6" class="muted" style="padding:14px;">No timesheet data yet — fill it in on the <a href="index.html">timesheet page</a>.</td></tr>`;
+    document.getElementById('totalGross').textContent='£0.00';
+    document.getElementById('totalNet').textContent='£0.00';
+    document.getElementById('totalsBreak').textContent='';
+    window._lastWeek = null; return;
+  }
+  const { rows, startDate } = built;
+  const overrides = loadOverrides();
+  let gross=0, totalHours=0, otHours=0, daysWorked=0;
+
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    const baseKey = 'b'+r.i, otKey='o'+r.i;
+    const baseName = r.worked ? (overrides[baseKey] || guessBaseRate(r.day, r.shift)) : '';
+    const otName   = r.worked ? (overrides[otKey]   || guessOtRate(r.day, r.shift))   : '';
+
+    const baseHours = Math.min(r.hours, 9);
+    const otH = Math.max(0, r.hours - 9);
+    const basePay = r.worked && baseHours>0 ? (rates.rates[baseName]||0) : 0;
+    const otPay   = otH>0 ? (rates.rates[otName]||0) * otH : 0;
+    const pay = basePay + otPay;
+
+    gross += pay; totalHours += r.hours; otHours += otH; if(r.worked) daysWorked++;
+
+    const mkSel = (names, current, keyName) => {
       const sel = document.createElement('select');
-      const optNone = document.createElement('option'); optNone.value=''; optNone.textContent = r.worked ? '(pick a rate)' : '— off —';
-      sel.appendChild(optNone);
-      rates.items.forEach(it => {
-        const o=document.createElement('option'); o.value=it.name; o.textContent=`${it.name} — £${it.rate.toFixed(2)}`;
-        sel.appendChild(o);
-      });
-      let chosen = overrides[r.i] ?? (r.worked ? guessRateName(r) : '');
-      sel.value = rates.items.some(x => x.name === chosen) ? chosen : '';
+      sel.innerHTML = '<option value="">—</option>' + names.map(n=>`<option ${n===current?'selected':''}>${n}</option>`).join('');
       sel.disabled = !r.worked;
-      sel.onchange = () => { const o = loadOverrides(); o[r.i] = sel.value; saveOverrides(o); refreshCalc(); };
-      tdRate.appendChild(sel);
+      sel.onchange = () => { const o=loadOverrides(); o[keyName]=sel.value; saveOverridesFn(o); refreshCalc(); };
+      return sel;
+    };
 
-      // Units
-      const tdUnits = document.createElement('td');
-      const unitsInput = document.createElement('input');
-      unitsInput.type='number'; unitsInput.step='0.25'; unitsInput.min='0';
-      const unitsKey = 'u'+r.i;
-      const savedUnits = overrides[unitsKey];
-      unitsInput.value = savedUnits != null ? savedUnits : (r.worked ? 1 : 0);
-      unitsInput.disabled = !r.worked;
-      unitsInput.onchange = () => { const o = loadOverrides(); o[unitsKey] = parseFloat(unitsInput.value)||0; saveOverrides(o); refreshCalc(); };
-      tdUnits.appendChild(unitsInput);
+    const tdDay = document.createElement('td'); tdDay.innerHTML = `<b>${r.day}</b>${r.worked?`<small>${r.shift}</small>`:''}`;
+    const tdDate = document.createElement('td'); tdDate.textContent = r.date;
+    const tdHrs = document.createElement('td');
+    tdHrs.innerHTML = r.worked ? `${r.hours.toFixed(2)}h${otH>0?`<small>+${otH.toFixed(2)}h OT</small>`:''}` : '<span class="muted">—</span>';
+    const tdBase = document.createElement('td');
+    if(r.worked){ tdBase.appendChild(mkSel(BASE_NAMES, baseName, baseKey)); tdBase.insertAdjacentHTML('beforeend', `<small>£${basePay.toFixed(2)}</small>`); }
+    const tdOt = document.createElement('td');
+    if(r.worked && otH>0){ tdOt.appendChild(mkSel(OT_NAMES, otName, otKey)); tdOt.insertAdjacentHTML('beforeend', `<small>£${otPay.toFixed(2)}</small>`); }
+    else if(r.worked){ tdOt.innerHTML = '<span class="muted">—</span>'; }
+    const tdPay = document.createElement('td'); tdPay.className='num';
+    tdPay.innerHTML = pay>0 ? `<b>£${pay.toFixed(2)}</b>` : '';
 
-      // Pay
-      const rate = rates.items.find(x => x.name === sel.value);
-      const units = parseFloat(unitsInput.value)||0;
-      const pay = rate ? rate.rate * units : 0;
-      total += pay;
-      if(r.worked) daysWorked += units;
-      const tdPay = document.createElement('td'); tdPay.className='num';
-      tdPay.innerHTML = pay ? `<b>£${pay.toFixed(2)}</b>` : '';
+    [tdDay,tdDate,tdHrs,tdBase,tdOt,tdPay].forEach(x=>tr.appendChild(x));
+    body.appendChild(tr);
+  });
 
-      [tdDay, tdDate, tdRate, tdUnits, tdPay].forEach(x => tr.appendChild(x));
-      body.appendChild(tr);
+  // Tax: 1254L → £12,570 allowance = £241.73/wk, 20% on remainder
+  const ALLOW = 12570/52;
+  const taxable = Math.max(0, gross - ALLOW);
+  const tax = taxable * 0.20;
+  const net = gross - tax;
+
+  document.getElementById('totalGross').textContent = '£'+gross.toFixed(2);
+  document.getElementById('totalNet').textContent   = '£'+net.toFixed(2);
+  document.getElementById('totalsBreak').textContent =
+    `${daysWorked} day${daysWorked===1?'':'s'} · ${totalHours.toFixed(2)}h total · ${otHours.toFixed(2)}h OT`;
+  document.getElementById('taxBreak').textContent =
+    `Tax code 1254L · allowance £${ALLOW.toFixed(2)}/wk · tax £${tax.toFixed(2)}`;
+
+  window._lastWeek = { startDate, rows, gross, tax, net, totalHours, otHours, daysWorked };
+}
+
+// ---- Save week / monthly totals ----
+function loadWeeks(){ try { return JSON.parse(localStorage.getItem(WEEKS_KEY))||{}; } catch(e){ return {}; } }
+function saveWeeks(w){ localStorage.setItem(WEEKS_KEY, JSON.stringify(w)); }
+
+function monthKey(iso){ const d = new Date(iso); return `${d.getFullYear()}-${pad(d.getMonth()+1)}`; }
+function monthLabel(k){
+  const [y,m] = k.split('-'); const names=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${names[+m-1]} ${y}`;
+}
+
+function renderMonths(){
+  const list = document.getElementById('monthsList'); list.innerHTML='';
+  const weeks = loadWeeks();
+  const buckets = {};
+  Object.values(weeks).forEach(w => {
+    const k = monthKey(w.startDate); (buckets[k] ||= []).push(w);
+  });
+  const keys = Object.keys(buckets).sort().reverse();
+  if(keys.length === 0){ list.innerHTML = '<div class="muted">No weeks saved yet.</div>'; return; }
+  keys.forEach(k => {
+    const ws = buckets[k];
+    const g = ws.reduce((s,w)=>s+w.gross,0);
+    const n = ws.reduce((s,w)=>s+w.net,0);
+    const h = ws.reduce((s,w)=>s+w.totalHours,0);
+    const row = document.createElement('div'); row.className='month-row';
+    row.innerHTML = `<div><b>${monthLabel(k)}</b> <span class="muted">· ${ws.length} week${ws.length===1?'':'s'} · ${h.toFixed(1)}h</span></div>
+      <div>Gross <b>£${g.toFixed(2)}</b> · Net <b>£${n.toFixed(2)}</b></div>`;
+    list.appendChild(row);
+    ws.sort((a,b)=>a.startDate.localeCompare(b.startDate)).forEach(w => {
+      const sub = document.createElement('div'); sub.className='month-row'; sub.style.marginLeft='16px'; sub.style.background='#fff';
+      sub.innerHTML = `<div>${w.label||w.startDate} <span class="muted">· ${w.totalHours.toFixed(2)}h${w.otHours?` (+${w.otHours.toFixed(2)} OT)`:''}</span></div>
+        <div>£${w.gross.toFixed(2)} → <b>£${w.net.toFixed(2)}</b>
+          <button class="btn" style="padding:4px 8px;margin-left:6px;" data-del="${w.id}">✕</button></div>`;
+      list.appendChild(sub);
     });
+  });
+  list.querySelectorAll('[data-del]').forEach(b => b.onclick = () => {
+    const w = loadWeeks(); delete w[b.dataset.del]; saveWeeks(w); renderMonths();
+  });
+}
 
-    document.getElementById('totalAmt').textContent = '£' + total.toFixed(2);
-    document.getElementById('totalsBreak').textContent = `${daysWorked.toFixed(2)} unit${daysWorked===1?'':'s'} across ${rows.filter(r=>r.worked).length} day${rows.filter(r=>r.worked).length===1?'':'s'}`;
-  }
+document.getElementById('saveWeek').onclick = () => {
+  const s = document.getElementById('saveWeekStatus');
+  if(!window._lastWeek){ s.textContent='Nothing to save.'; s.className='status warn'; return; }
+  const label = document.getElementById('weekLabel').value.trim();
+  const w = loadWeeks();
+  const id = window._lastWeek.startDate + '_' + Date.now();
+  w[id] = { id, label, ...window._lastWeek };
+  saveWeeks(w);
+  s.textContent='Saved ✓'; s.className='status ok'; setTimeout(()=>s.textContent='',1800);
+  document.getElementById('weekLabel').value='';
+  renderMonths();
+};
 
-  refreshCalc();
-  window.addEventListener('storage', refreshCalc);
-  window.addEventListener('focus', refreshCalc);
+document.getElementById('exportAll').onclick = () => {
+  const data = loadWeeks();
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = `wage-weeks-${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(a.href);
+};
+document.getElementById('importFile').onchange = async e => {
+  const f = e.target.files[0]; if(!f) return;
+  try {
+    const obj = JSON.parse(await f.text());
+    const cur = loadWeeks();
+    saveWeeks({ ...cur, ...obj }); renderMonths();
+  } catch(err){ alert('Bad JSON file.'); }
+};
+document.getElementById('clearWeeks').onclick = () => {
+  if(!confirm('Delete every saved week?')) return;
+  localStorage.removeItem(WEEKS_KEY); renderMonths();
+};
+
+refreshCalc();
+renderMonths();
+window.addEventListener('storage', () => { refreshCalc(); renderMonths(); });
+window.addEventListener('focus',   () => { refreshCalc(); renderMonths(); });
 </script>
 </body>
 </html>
