@@ -319,7 +319,12 @@ function renderDayForm(){
       <div class="grid-3">
         <div class="row"><label>Start time</label><input id="startTime" type="time" value="${e.start||''}"></div>
         <div class="row"><label>Finish time</label><input id="finishTime" type="time" value="${e.finish||''}"></div>
-        <div class="row"><label>Location</label><input id="loc" type="text" placeholder="e.g. Solihull" value="${e.location||''}"></div>
+        <div class="row"><label>Location</label>
+          <select id="loc">
+            ${['','Northampton','Warwickshire','Birmingham','Solihull','Milton Keynes','Stoke','Breakdown','Stand down','Rained off']
+              .map(v=>`<option value="${v}" ${e.location===v?'selected':''}>${v||'— pick a location —'}</option>`).join('')}
+          </select>
+        </div>
       </div>
     </div>
   `;
